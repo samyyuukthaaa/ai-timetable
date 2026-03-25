@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Study Planner</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #output {
+            background: white;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>📚 AI Study Planner</h2>
+
+<h3>Upload Timetable</h3>
+<input type="file" id="image"><br><br>
+
+<h3>Enter Your Scores</h3>
+
+<label>DSA:</label><br>
+<input type="number" id="dsa"><br>
+
+<label>Math:</label><br>
+<input type="number" id="math"><br><br>
+
+<button onclick="generatePlan()">Generate Study Plan</button>
+
+<h3>📅 Output</h3>
+<div id="output">Your study plan will appear here...</div>
+
+<script>
+function generatePlan() {
+    const dsa = document.getElementById("dsa").value;
+    const math = document.getElementById("math").value;
+    const image = document.getElementById("image").files[0];
+
+    if (!image) {
+        alert("Upload timetable image!");
+        return;
+    }
+
+    let formData = new FormData();
+
+    formData.append("image", image);
+    formData.append("scores", JSON.stringify({
+        DSA: Number(dsa),
+        Math: Number(math)
+    }));
+
+    fetch("/generate-plan", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        let output = "";
+
+        data.forEach(item => {
+            output += item.day + " - " + item.slot + " → " + item.task + "\n";
+        });
+
+        document.getElementById("output").innerText = output;
+    })
+    .catch(err => console.log(err));
+}
+</script>
+
+</body>
+</html>
